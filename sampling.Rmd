@@ -1,0 +1,51 @@
+---
+title: "The Islands Sampling"
+author: "Daniel"
+output: html_notebook
+---
+
+```{r}
+# Generate 80 random numbers(w/o replacement) out of the total 514 households in
+# talu, and store them into a dataframe 
+ran_num <- sample(1:514, 80, replace = FALSE) 
+
+household_df <- data.frame(household_number = ran_num)
+household_df
+```
+
+```{r}
+# Choosing Participants; generates a random number from 1 to user defined number
+generate_random_number <- function(max_num){
+  return (sample(1:max_num, 1))
+}
+```
+
+```{r}
+# In case of invalid households(no one 18+, household has no members, etc),
+# find Another household number that has not been chosen, and add the new number
+# in place of the old number in the dataframe 
+replace_num <- function(index){
+   new_num <- sample(setdiff(1:max(household_df$household_number), 
+                            household_df$household_number), 1)
+  print(new_num)
+  
+  # replace the number at the vector and dataframe
+  
+  household_df$household_number[index] <- new_num
+  
+  return (household_df)
+}
+
+```
+
+```{r}
+# Generating Treatment Groups; 1=Nicotine Treatment, 0=Placebo
+# generate vector of 80 random 1's and 0's
+treatment_groups <- sample(0:1, 80, replace=TRUE)
+
+treatment_groups
+
+write.csv(treatment_groups, file = "treatment_groups.csv", row.names = FALSE)
+```
+
+
