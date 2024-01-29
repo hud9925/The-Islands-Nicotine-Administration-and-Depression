@@ -1,0 +1,289 @@
+---
+title: "The Effect of Nicotine Administration on Patients Determined Through Glucose Levels And Depression Tests"
+output: 
+  pdf_document:
+    fig_caption: yes
+---
+ 
+
+**Authors Emily Qin\*, Sabrina Chan$\alpha$, Daniel Hu$\beta$, Mohammad Borghei$\gamma$
+
+- $^{\ast}$ Contemporary Asian Studies Major, Health & Disease Major, Immunology Minor, University of Toronto
+- $^{\alpha}$ Human Biology and CSB Major, University of Toronto
+- $^{\beta}$ Bioinformatics Specialist and EEB Major, University of Toronto
+- $^{\gamma}$ PharmTox specialist, University of Toronto
+
+**Author Contributions**
+
+- EQ, SB, DH, MB: Planned and collected data for the experiment
+- EQ: Drafted Introduction
+- EQ, SB: Gathered peer-reviewed research
+- DH, SB, EQ: Planned Statistical Tests, edited and formatted report
+- DH: Generated the R Markdown Files, Sampling and Statistical Test Code, Results and Discussion
+
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# reading the csv file as a df
+data <- read_csv("Data Tracking - Final_Sheet.csv")
+```
+
+
+### Sampling Code for methods
+```{r}
+# Generate 80 random numbers(w/o replacement) out of the total 514 households in
+# talu, and store them into a dataframe 
+ran_num <- sample(1:514, 80, replace = FALSE) 
+household_df <- data.frame(household_number = ran_num)
+
+# Choosing Participants; generates a random number from 1 to user defined number
+generate_random_number <- function(max_num){
+  return (sample(1:max_num, 1))
+}
+
+# In case of invalid households(no one 18+, household has no members, etc),
+# find Another household number that has not been chosen, and add the new number
+# in place of the old number in the dataframe 
+replace_num <- function(index){
+   new_num <- sample(setdiff(1:max(household_df$household_number), 
+                            household_df$household_number), 1)
+  print(new_num)
+  
+  # replace the number at the vector and dataframe
+  
+  household_df$household_number[index] <- new_num
+  
+  return (household_df)
+}
+# Generating Treatment Groups; 1=Nicotine Treatment, 0=Placebo
+# generate vector of 80 random 1's and 0's
+treatment_groups <- sample(0:1, 80, replace=TRUE)
+
+# write to csv 
+#write.csv(treatment_groups, file = "treatment_groups.csv", row.names = FALSE)
+```
+
+
+### Displaying the Number of Participants by Smoke Group and Treatment
+
+```{r}
+# Background Info; figuring out information about the demographic
+# Curate the dataframe to be more useful in future analysis
+
+data2 <- data %>%  # Removing all participants under 40 and above 80 to 
+                   # Increase power 
+  filter(Age >= 40) %>%   
+  filter(Age <= 80) %>% 
+  filter(Smoke_Group != "HEAVY") %>%  # HEAVY Group only has one participant;
+                                      # no nicotine treatment group
+  rename(Blood_Glu_start = `Blood_Glu_Start(mg/dL)`) %>% 
+  rename(Blood_Glu_final = `Blood_Glu_final(mg/dL)`)
+
+# display the number of participants in each smoke category
+smoke_counts <- table(data2$Smoke_Group)
+nrow(data2) # get total number of participants n=45
+cat("Table 1: Number of Participants in Each Smoke Category\n")
+smoke_counts 
+
+# displays the number of participants in each smoke and treatment group
+participant_counts <- table(data2$Smoke_Group, data2$Treatment_Group)
+cat("Table 2: Number of Participants in Each Smoke and Treatment Group\n")
+print(participant_counts)
+
+cat("\n")
+
+# Convert Treatment_Group and Smoke_Groups to be factors for future analysis
+data2$Treatment_Group_Factor <- factor(data2$Treatment_Group)
+data2$Smoke_Group <- as.factor(data2$Smoke_Group)
+
+# separate by smoking groups
+non_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Non")  
+
+light_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Light")  
+  
+moderate_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Moderate")  
+ 
+```
+
+## Measurements 
+```{r}
+# separate by smoking groups
+non_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Non")  
+
+light_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Light")  
+  
+moderate_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Moderate")  
+ 
+```
+
+# Results 
+
+```{r}
+#calculate the mean starting, mid and final glucose levels of the two treatment groups
+
+# Calculate the mean of Blood_Glu_Start and Blood_Glu_final for each group by Treatment_Group
+non_smoker_means <- aggregate(cbind(Blood_Glu_start, Blood_Glu_final) ~ 
+                                Treatment_Group, data = non_smoker_group, 
+                              FUN = mean)
+light_smoker_means <- aggregate(cbind(Blood_Glu_start, Blood_Glu_final) ~ 
+                                  Treatment_Group, data = light_smoker_group, 
+                                FUN = mean)
+moderate_smoker_means <- aggregate(cbind(Blood_Glu_start, Blood_Glu_final) ~ 
+                                     Treatment_Group,
+                                   data = moderate_smoker_group, FUN = mean)
+
+#combine into one dataframe
+means_df <- data.frame(Smoke_Group = c("Non", "Light", "Moderate"), 
+                       placebo_start = c(non_smoker_means[1,2], 
+                                         light_smoker_means[1,2], 
+                                         moderate_smoker_means[1,2]),
+                       treatment_start = c(non_smoker_means[2,2], 
+                                           light_smoker_means[2,2], 
+                                         moderate_smoker_means[2,2]),
+                       placebo_end = c(non_smoker_means[1,3], 
+                                       light_smoker_means[1,3],
+                                       moderate_smoker_means[1,3] ),
+                       treatment_end = c(non_smoker_means[2,3], 
+                                         light_smoker_means[2,3], 
+                                       moderate_smoker_means[1,3]
+                                      ))
+# Convert the data from wide to long format
+means_df_long <- pivot_longer(means_df, 
+                              cols = c(placebo_start, treatment_start, 
+                                       placebo_end, treatment_end), 
+                              names_to = "Treatment_Group", 
+                              values_to = "Mean_Blood_Glucose")
+
+# Reorder the smoking groups
+order_smoke_group <- c("Non", "Light", "Moderate", "Heavy")
+
+# Create a new factor variable with the desired order
+means_df_long$Smoke_Group <- factor(means_df_long$Smoke_Group, 
+                                     levels = order_smoke_group)
+
+# summarizing the starting and end blood glucose levels of each group
+cat("Table 3: Summary of Starting and End Blood Glucose Levels for Each Group")
+print(means_df)
+
+
+# Create the barplot of mean blood glucose according to smoke and treatment
+ggplot(means_df_long, aes(x = Smoke_Group, y = Mean_Blood_Glucose, 
+                          fill = Treatment_Group)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve = "single", 
+                                                         padding = 0.2)) +
+  labs(x = "Smoking Group", y = "Mean Blood Glucose (mg/dL)", 
+       caption = 
+         "Figure 1A: Mean Blood Glucose Levels By Smoking Group and Treatment") +
+  scale_fill_manual(values = c("lightblue", "Blue", "lightgreen", "green"), 
+                    labels = c("Placebo - Start", "Placebo - End", 
+                               "Treatment - Start", "Treatment - End")) +
+  theme_bw() + 
+  theme(legend.position = "right", plot.caption = element_text(hjust = 0.5, 
+                                                      size = 10, face = "bold"))
+```
+
+
+### Two-way Anova Analysis 
+```{r}
+# Comparing the means between factors(treatment group and smoking levels)
+# 2-way Anova analysis 
+
+# H0: Nicotine treatment has no impact on mean blood glucose levels 
+# HA: Nicotine Treatment does have an impact on mean blood glucose levels for the different smoking levels
+
+# H0: Smoking levels have no effect on mean blood glucose levels
+# HA: Smoking levels does have an effect on the mean blood glucose levels for 
+# at least one treatment group 
+
+# H0: Mean blood glucose levels does not vary depending on nicotine treatment 
+# and nicotine treatment's effect on mean blood glucose levels does not vary 
+# with different smoking levels 
+# HA: Mean blood glucose levels is effected depending on nicotine treatment or 
+# the nicotine treatment effect varies depending on smoking levels 
+
+# store results of the two way anova 
+two_way_anova <- aov(Blood_Glu_final ~ Treatment_Group * Smoke_Group, 
+                     data = data2)
+
+
+# actual and adjusted2-way anova results
+cat("Figure 1B: Two-Way ANOVA Analysis\n")
+summary(two_way_anova)
+
+cat("Figure 1C: TukeyHSD Adjustment for Two-Way Analysis\n")
+TukeyHSD(two_way_anova)
+```
+
+### 2-way Anova Analysis Assumptions
+```{r}
+# Checking Assumptions for 2-way anova analysis
+#checking assumptions 
+qqnorm(two_way_anova$residuals)
+qqline(two_way_anova$residuals)
+
+# Add caption-like text below the plot
+par(mar = c(6, 4, 4, 2) + 0.1)  # Adjust bottom margin to make space for caption
+mtext("Figure 1E: QQ-Plot for Blood Glucose ANOVA", side = 1, line = 5, 
+      cex = 0.8, font = 2, adj = 0.5)
+
+  
+cat("Table 4: Standard Deviations of Blood Glucose Levels with Smoke and 
+    Treatment Groups")
+tapply(data2$Blood_Glu_final, list(data2$Treatment_Group, data2$Smoke_Group), 
+       "sd")
+
+
+stripchart(two_way_anova$residuals~data2$Treatment_Group*
+             data2$Smoke_Group, vertical=TRUE, pch=1, 
+           xlab = "Treatment and Smoking Groups(0=Placebo, 1=Nicotine)")
+
+# add caption for strip plot 
+par(mar = c(6, 4, 4, 2) + 0.1)  # Adjust bottom margin to make space for caption
+mtext("Figure 1D: Strip Plot To Test Standard Variance of 
+      Blood Glucose ANOVA", side = 1, line = 5, cex = 0.8, font = 2, adj = 0.5)
+
+```
+
+
+## Blood Glucose Levels and Depressive Symptoms
+ 
+```{r}
+# comparing two qualitative variables, use a scatterplot
+par(mar = c(7, 4, 4, 2) + 0.1)  # Adjust bottom margin to make space for caption
+plot(data2$Blood_Glu_final, data2$Depression_final, xlab = 
+       "Blood Glucose Levels (mg/dl)", ylab= "Depression Score Result")
+
+# add caption for scatterplot
+mtext("Figure 2. Scatter Plot of Blood Glucose Levels and Depression Scores", 
+      side = 1, line = 6, cex = 0.8, font = 2, adj = 0.5)
+
+# adding a line of best fit to view correlation
+regression <- lm(data2$Depression_final ~ data2$Blood_Glu_final)
+abline(regression, col="red", lwd=2)
+
+# extract coefficients from the regression model
+intercept <- coef(regression)[1]
+slope <- coef(regression)[2]
+
+# display the equation of the line of best fit
+cat("Equation of the line of best fit: y =", round(intercept, 2), "+", round(slope, 2), "x\n")
+
+```
+
+
+
+
+
+
+
+
+
