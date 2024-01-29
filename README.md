@@ -6,14 +6,13 @@ This GitHub repository presents the "Nicotine and Glucose Study" conducted throu
 
 - **Emily Qin***: Major in Contemporary Asian Studies and Health & Disease, Minor in Immunology.
 - **Sabrina Chanα**: Human Biology and CSB Major.
-- **Daniel Huβ**: Bioinformatics Specialist and EEB Major.
+- **Daniel Hu**: Bioinformatics Specialist and EEB Major.
 
 ## Repository Overview
 
-- **`/R_Code`**: R Markdown files and statistical analysis scripts.
-- **`/Data`**: Dataset from "The Islands" simulation, including participant details and results.
-- **`/Documentation`**: Study report with methodology and findings.
-- **`/Graphs`**: Visualizations and charts of data analysis.
+- **`/final_report-1.rmd`**: R Markdown files and statistical analysis scripts.
+- **`/Data Tracking - final sheet`**: CSV Dataset from "The Islands" simulation, including participant details and results.
+- **`/final_report.pdf`**: PDF (knitted) Study report with methodology and findings.
 - **`/References.pdf`**: List of referenced literature.
 
 ## Study Overview
