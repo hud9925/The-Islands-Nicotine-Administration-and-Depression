@@ -1,0 +1,80 @@
+Participant_id,House_Num,Participant_Name,Age,Sex,Smoke_Group,Treatment_Group,Blood_Glu_Start(mg/dL),Depression_Start,Smoke_Freq_Start,Blood_Glu_final(mg/dL),Depression_final
+1,139,Alisha Ganaka,74,F,Light,1,90,21.5,Not at all,90,21.5
+2,287,Rachelle Devar,22,F,Light,0,97,19.5,Less often than weekly,95,19.5
+4,193,Fabrice Pallesen,75,M,Non,1,89,18,Less often than weekly,89,18
+5,487,Nathan Collins,19,M,Non,0,90,20,Not at all,90,18
+6,458,Bernard Wilson,20,M,Light,0,93,17,Not at all,94,25.5
+7,434,Emmanuelle Marchal,19,M,Non,1,95,24.5,Not at all,93,25
+8,420,David Solberg,23,M,Light,0,95,20,Less often than weekly,96,18
+9,227,Layak Mardia,26,M,Non,1,88,15,Not at all,88,24.5
+10,1,Mahir Singh,78,M,Moderate,1,90,17.5,At least Weekly,93,21.5
+11,8,Kaeda Hall,19,F,Non,1,93,21.5,Not at all,94,22.5
+12,423,Manami Kimura,57,F,Non,0,92,20,Not at all,91,15
+13,219,Nanami Moore,46,F,Non,0,80,18,Not at all,83,17
+14,397,Daniel Thorn,68,M,Non,1,95,19.5,Not at all,94,18.5
+15,291,Mary Sato,62,F,Non,0,85,23,Not at all,85,22.5
+16,383,Paavan Abbasi,76,M,Light,0,87,18,Less often than weekly,87,21
+17,310,Raum Ibsen,69,M,Non,1,91,19.5,Not at all,90,17.5
+18,336,Seymour Connolly,60,M,Non,0,95,14,Not at all,93,17.5
+19,502,Emma Bager,20,F,Light,1,94,24.5,Less often than weekly,91,23.5
+20,9,Gaetan Dupont,35,M,Non,1,97,20,Not at all,95,18.5
+21,217,Daiki Hall,88,F,Non,0,88,22,Not at all,103,20.5
+22,133,Adele Reilly,65,F,Non,1,92,23.5,Not at all,93,20
+23,488,Husaam Dhirwan,21,M,Moderate,0,86,20.5,at least weekly,97,19
+24,358,Lydie Masson,50,F,Non,1,93,17,Not at all,90,19.5
+25,391,Lena Solberg,66,F,Non,1,97,17,Not at all,97,18
+26,475,Nils Eklund,60,M,Non,0,87,19,Not at all,98,21.5
+27,335,Haroon Mehta,50,M,Moderate,0,85,18,At least weekly,99,19
+28,245,Sorena Carlsen,60,F,Non,1,91,19.5,Not at all,89,18.5
+29,481,Charles Zaman,19,M,Non,0,91,14.5,Not at all,99,25.5
+30,484,Jake Moore,22,M,Light,0,97,19,Less often than weekly,107,23
+31,281,Raum Carlsen,60,M,Non,0,92,16,Not at all,105,17
+32,198,Billy Dickson,65,M,Non,1,96,21,Not at all,109,16.5
+33,253,Sian Jackson,19,F,HEAVY,0,91,18.5,Daily,97,18.5
+34,108,Tyler Sato,62,M,Non,0,91,15,Not at all,108,17
+35,300,Vasudha Varadhan,39,F,Non,1,91,22,Not at all,92,24
+36,160,Mimi Martel,41,F,Non,0,91,20.5,Not at all,108,28.5
+37,506,Xavier Perrot,20,M,Moderate,1,91,19.5,At least weekly,88,20
+38,390,Erika Eklund,33,F,Non,1,87,22.5,Not at all,85,22
+39,256,Florian Svendsen,98,M,Non,0,89,15,Not at all,104,14.5
+40,407,Josiane Pelletier,21,F,Non,0,92,26,Not at all,111,21
+41,242,Beau Jackson,62,M,Moderate,0,94,21.5,At least weekly,97,18.5
+43,37,Thevan Abbasi,75,M,Moderate,0,87,16,At least weekly,94,18
+44,361,Gerard Munro,67,M,Non,0,90,18.5,Not at all,96,15.5
+45,495,Lahar Chatterjee,21,M,Light,0,87,26.5,Less often than weekly,91,24
+46,470,Lisle Page,21,F,Non,1,85,23.5,Not at all,100,25
+47,151,Eva Price,51,F,Non,1,96,15,Not at all,109,21.5
+48,155,Sinead Jackson,76,F,Non,0,93,20,Not at all,100,23
+49,294,Raine Bager,61,M,HEAVY,1,95,24.5,Daily,100,22.5
+50,363,Astrid Larsen,47,F,Moderate,0,95,20,At least weekly,102,17.5
+51,200,Lucien Carlsen,77,M,Non,1,92,25,Not at all,104,23
+52,14,Sarah Solberg,91,F,Non,0,90,17,Not at all,95,20
+53,503,Bindi Dayal,20,F,Light,1,93,20.5,Less often than weekly,106,21
+55,152,Raine Swift,24,F,Non,1,90,18,not at all,104,21
+56,493,Zachary Yamada,60,M,Light,1,96,18.5,Less often than weekly,106,20
+57,401,Alexander Jackson,56,M,Non,0,95,20,Not at all,97,16.5
+58,90,Julia Eklund,59,F,Light,1,86,23,less often than weekly,98,22
+59,166,armand duval,27,M,HEAVY,0,90,18,Daily,93,22
+60,433,Charu Anand,63,F,Non,0,84,18,Not at all,93,18.5
+61,130,Aimon Sorensen,61,M,Non,0,88,24,Not at all,91,19
+62,204,Bruce McDonald,75,M,Moderate,0,103,14.5,At least weekly,101,17.5
+63,409,Mark Wilson,59,M,Non,0,91,19.5,Not at all,91,19
+64,346,Kristel Herzog,69,F,Light,0,90,20,Less often than weekly,87,23
+65,392,Patrick Engel,63,M,Non,0,98,18.5,Not at all,98,22.5
+66,137,Sonja Blomgren,62,F,Non,0,97,21.5,Not at all,98,24
+67,277,Kevin Wilson,62,M,Light,0,89,20.5,Not at all,88,17
+68,273,Brielle Dupont,61,F,Non,0,87,19.5,Not at all,90,21.5
+69,202,Annabelle Sato,41,F,Light,0,94,20.5,Less often than weekly,91,19.5
+70,496,Ava Mccarthy,20,F,Non,0,89,20.5,Not at all,89,20.5
+71,67,Bhajan Varadhan,48,M,Light,0,97,22,Not at all,98,23
+72,6,Marianne Clausen,86,F,Non,0,90,19.5,Not at all,89,23.5
+73,508,Pahal Mangal,20,M,Non,0,95,16,Not at all,94,24
+74,93,Olivier Eklund,88,M,Light,1,83,16.5,Less often than weekly,83,16
+75,238,Chloe Gagnon,49,F,Non,0,88,18,Not at all,82,17
+76,215,Jana Sorensen,40,F,Light,1,90,19,Less often than weekly,89,18.5
+77,24,Taara Khan,67,F,Non,0,87,25,Not at all,84,23
+78,7,Hanima Banerjee,73,F,Light,0,91,17.5,Not at all,92,20.5
+79,419,Armand Gadhavi,27,M,Non,0,91,22.5,Not at all,91,23
+80,387,Olina Eklund,26,F,Moderate,1,87,26,At least weekly,87,22.5
+,,,,,,,,,,,
+,,,,,,"(1 = Nicotine Treatment , 0 = Placebo)",,,,,

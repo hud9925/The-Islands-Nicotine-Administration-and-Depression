@@ -1,0 +1,4 @@
+Participant_id,House_Num,Participant_Name,Age,Sex,Smoke_Group,Treatment_Group,Blood_Glu_Start(mg/dL),Depression_Start,Blood_Glu_final(mg/dL),Depression_final
+Participant's id,Participant's House #,   Participant's Name,Participant's Age,Sex of Participant,"Smoking Frequency of Participant: Non, light, moderate","Treatment Group Participant Was  assigned to 0: Placebo Group,",Measured Blood Glucose at Start (in mg/dL),Participant's Depression Test Score,Final Measured Blood Glucose Level (in mg/dL,Participant's FInal Measured Depression Test Score
+,,,,,,,,,,
+,,,,,,1: Nicotine Group,,,,

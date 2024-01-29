@@ -1,0 +1,357 @@
+---
+title: "The Effect of Nicotine Administration on Patients Determined Through Glucose Levels And Depression Tests"
+output: 
+  pdf_document:
+    fig_caption: yes
+---
+ 
+
+**Authors Emily Qin\*, Sabrina Chan$\alpha$, Daniel Hu$\beta$, Mohammad Borghei$\gamma$
+
+- $^{\ast}$ Contemporary Asian Studies Major, Health & Disease Major, Immunology Minor, University of Toronto
+- $^{\alpha}$ Human Biology and CSB Major, University of Toronto
+- $^{\beta}$ Bioinformatics Specialist and EEB Major, University of Toronto
+- $^{\gamma}$ PharmTox specialist, University of Toronto
+
+**Author Contributions**
+
+- EQ, SB, DH, MB: Planned and collected data for the experiment
+- EQ: Drafted Introduction
+- EQ, SB: Gathered peer-reviewed research
+- DH, SB, EQ: Planned Statistical Tests, edited and formatted report
+- DH: Generated the R Markdown Files, Sampling and Statistical Test Code, Results and Discussion
+
+
+
+# INTRODUCTION
+High blood glucose levels are commonly associated with other complications, including high blood pressure or hyperglycemia. In time, these complications can lead to diseases such as heart disease or atherosclerosis (Ahanchi et al., 2019, Gerald et al., 1992). Most notably, type 2 diabetes (T2D) is characterized by increased blood glucose due to the body's inability to secrete insulin (Prigge et al., 2022, Maddatu et al., 2019). Nicotine, which is a major component in cigarettes, has been shown to be a highly addictive substance that also leads to a 30–40% increased risk of developing T2D in active smokers (Prigge et al., 2022). Consequently, this suggests that smoking cessation should be considered a public health intervention to combat the T2D epidemic. Furthermore, major depressive disorder (MDD), which has been recognized by the World Health Organization as a leading catalyst of disease worldwide, has also been shown to have a bidirectional association with cardiometabolic diseases – particularly T2D (Lassere et al., 2017, Bains et al., 2022). 
+
+Several studies have shown a link between T2D and MDD, where individuals with both conditions are also at higher risk for further comorbidities, such as cardiovascular disease and cancer (Prigge et al., 2022). Furthermore, past research has identified several risk factors for T2D, including smoking and nicotine (Laakso et al., 2019). Heavy smoking most likely increases the risk of developing T2D, as seen in a study where men who smoked 25 or more cigarettes per day had a relative risk of 1.94 compared to non-smokers (Maddatu et al., 2019). However, this relationship hasn’t been fully characterized. 
+
+In our study, we will investigate whether nicotine consumption influences blood glucose levels and if it leads to an increase in depressive symptoms. Therefore, we hypothesize that the intake of nicotine will lead to a rise in glucose levels while increasing the likelihood of depressive symptoms through enhanced emotional turmoil and stress. Our prediction is that individuals who smoke are more likely to have depressive symptoms than those who do not, which should be reflected in our comparison of treatment groups to control groups. By investigating the relationship between blood glucose, smoking status, and levels of depression, scientists can further examine potential areas of therapeutic treatments to minimize the risk of diseases, such as T2D or other comorbidities.
+
+
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# reading the csv file as a df
+data <- read_csv("Data Tracking - Final_Sheet.csv")
+```
+
+
+# Materials and Methods 
+Using a multistage sampling method, we initially recruited 80 participants from the village of Talu to obtain a large representative population. To limit potential sampling error caused by confounding factors including terrain, lifestyle, and diet seen across the different islands and between the different villages, we decided to focus on a single village. Focusing on one village would allow us to emphasize homogeneous features and reduce cost in a real-life scenario. However, there may be other internal factors that could impact the outcome of the study, including varying social determinants, migration, or occupation. 
+
+
+### Sampling Code for methods
+```{r}
+# Generate 80 random numbers(w/o replacement) out of the total 514 households in
+# talu, and store them into a dataframe 
+ran_num <- sample(1:514, 80, replace = FALSE) 
+household_df <- data.frame(household_number = ran_num)
+
+# Choosing Participants; generates a random number from 1 to user defined number
+generate_random_number <- function(max_num){
+  return (sample(1:max_num, 1))
+}
+
+# In case of invalid households(no one 18+, household has no members, etc),
+# find Another household number that has not been chosen, and add the new number
+# in place of the old number in the dataframe 
+replace_num <- function(index){
+   new_num <- sample(setdiff(1:max(household_df$household_number), 
+                            household_df$household_number), 1)
+  print(new_num)
+  
+  # replace the number at the vector and dataframe
+  
+  household_df$household_number[index] <- new_num
+  
+  return (household_df)
+}
+# Generating Treatment Groups; 1=Nicotine Treatment, 0=Placebo
+# generate vector of 80 random 1's and 0's
+treatment_groups <- sample(0:1, 80, replace=TRUE)
+
+# write to csv 
+#write.csv(treatment_groups, file = "treatment_groups.csv", row.names = FALSE)
+```
+
+
+### Displaying the Number of Participants by Smoke Group and Treatment
+
+```{r}
+# Background Info; figuring out information about the demographic
+# Curate the dataframe to be more useful in future analysis
+
+data2 <- data %>%  # Removing all participants under 40 and above 80 to 
+                   # Increase power 
+  filter(Age >= 40) %>%   
+  filter(Age <= 80) %>% 
+  filter(Smoke_Group != "HEAVY") %>%  # HEAVY Group only has one participant;
+                                      # no nicotine treatment group
+  rename(Blood_Glu_start = `Blood_Glu_Start(mg/dL)`) %>% 
+  rename(Blood_Glu_final = `Blood_Glu_final(mg/dL)`)
+
+# display the number of participants in each smoke category
+smoke_counts <- table(data2$Smoke_Group)
+nrow(data2) # get total number of participants n=45
+cat("Table 1: Number of Participants in Each Smoke Category\n")
+smoke_counts 
+
+# displays the number of participants in each smoke and treatment group
+participant_counts <- table(data2$Smoke_Group, data2$Treatment_Group)
+cat("Table 2: Number of Participants in Each Smoke and Treatment Group\n")
+print(participant_counts)
+
+cat("\n")
+
+# Convert Treatment_Group and Smoke_Groups to be factors for future analysis
+data2$Treatment_Group_Factor <- factor(data2$Treatment_Group)
+data2$Smoke_Group <- as.factor(data2$Smoke_Group)
+
+# separate by smoking groups
+non_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Non")  
+
+light_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Light")  
+  
+moderate_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Moderate")  
+ 
+```
+
+
+## Subjects
+Participants were initially selected to be at least 40 years old of any ethnicity and sex, with any smoking and diabetes status. Where consent was denied, a new participant was selected using the same method. If participants withdrew after the commencement of the study, new participants would not be recruited as the impact should be offset by the substantial sample size. Furthermore, we decided to focus on individuals from ages 40-80 years old to help reduce potential confounding effects associated with age. As well, a more defined population will help increase the power of our results as it is more likely to see a significant result. Thus, for our results, we analyzed a final sample size of n = 45. In all, we obtained 10 light smokers, 6 moderate smokers, and 29 non-smokers (Table 1).
+
+## Measurements 
+```{r}
+# separate by smoking groups
+non_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Non")  
+
+light_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Light")  
+  
+moderate_smoker_group <- data2 %>% 
+  filter(Smoke_Group == "Moderate")  
+ 
+```
+Our experimental design utilized randomized blocking and control group comparisons. Participants were first blocked by recent smoking history (non, light, moderate) to reduce confounding effects of this variable because nicotine administration has been shown to have fewer effects due to tolerance from smoking habits (Maddatu et al., 2019). Participants will then be randomly assigned to one of two treatment groups: a placebo group receiving 5 sugar capsules, or a treatment group receiving 5 sugar capsules and 5 tablets of 2 mg of nicotine – roughly equivalent to one cigarette’s worth (Jewell, 2019). All treatments were administered daily over a course of 14 days, or 6 months in Islands time. Since the control should not experience significant changes, it will be compared against our treatment group. We also removed the “heavy” smoking group, as there was only one individual, and therefore no randomization of treatment could be applied (cannot have both placebo and treatment group). Upon analysis, we considered the variations that may be caused by sex or age. Since The Islands do not clarify, we were unsure if participants would be aware of the group they were placed in which would limit the effectiveness of blinding in this study.
+
+To investigate the effects of smoking on blood glucose levels, we recorded blood glucose levels (mg/dL) at the start and end of the study. Furthermore, to investigate the relationship between blood glucose levels and depressive symptoms, we measured self-reported levels of happiness or depressive symptoms through a survey. This survey consisted of 5 questions similar to questionnaires that quantify depression on a numerical scale used by medical professionals, such as the Beck Depression Inventory (García-Batista et al., 2018). Participants were then assigned to discrete categories depending on their total results: no depression (0-10), mild (11-20), moderate (21-30), and severe (40+). Prior to beginning our experiment, each participant’s blood glucose levels were recorded. Each participant also completed a survey regarding depression-related symptoms to assess levels of depression at the beginning and the end of the 14-day treatment. By assessing the effects of nicotine on blood glucose levels, we concluded its effect on the development of depression. We expected to observe a relationship between the latest smoking status and the likelihood of developing depression.
+
+# Results 
+
+```{r}
+#calculate the mean starting, mid and final glucose levels of the two treatment groups
+
+# Calculate the mean of Blood_Glu_Start and Blood_Glu_final for each group by Treatment_Group
+non_smoker_means <- aggregate(cbind(Blood_Glu_start, Blood_Glu_final) ~ 
+                                Treatment_Group, data = non_smoker_group, 
+                              FUN = mean)
+light_smoker_means <- aggregate(cbind(Blood_Glu_start, Blood_Glu_final) ~ 
+                                  Treatment_Group, data = light_smoker_group, 
+                                FUN = mean)
+moderate_smoker_means <- aggregate(cbind(Blood_Glu_start, Blood_Glu_final) ~ 
+                                     Treatment_Group,
+                                   data = moderate_smoker_group, FUN = mean)
+
+#combine into one dataframe
+means_df <- data.frame(Smoke_Group = c("Non", "Light", "Moderate"), 
+                       placebo_start = c(non_smoker_means[1,2], 
+                                         light_smoker_means[1,2], 
+                                         moderate_smoker_means[1,2]),
+                       treatment_start = c(non_smoker_means[2,2], 
+                                           light_smoker_means[2,2], 
+                                         moderate_smoker_means[2,2]),
+                       placebo_end = c(non_smoker_means[1,3], 
+                                       light_smoker_means[1,3],
+                                       moderate_smoker_means[1,3] ),
+                       treatment_end = c(non_smoker_means[2,3], 
+                                         light_smoker_means[2,3], 
+                                       moderate_smoker_means[1,3]
+                                      ))
+# Convert the data from wide to long format
+means_df_long <- pivot_longer(means_df, 
+                              cols = c(placebo_start, treatment_start, 
+                                       placebo_end, treatment_end), 
+                              names_to = "Treatment_Group", 
+                              values_to = "Mean_Blood_Glucose")
+
+# Reorder the smoking groups
+order_smoke_group <- c("Non", "Light", "Moderate", "Heavy")
+
+# Create a new factor variable with the desired order
+means_df_long$Smoke_Group <- factor(means_df_long$Smoke_Group, 
+                                     levels = order_smoke_group)
+
+# summarizing the starting and end blood glucose levels of each group
+cat("Table 3: Summary of Starting and End Blood Glucose Levels for Each Group")
+print(means_df)
+
+
+# Create the barplot of mean blood glucose according to smoke and treatment
+ggplot(means_df_long, aes(x = Smoke_Group, y = Mean_Blood_Glucose, 
+                          fill = Treatment_Group)) +
+  geom_bar(stat = "identity", position = position_dodge2(preserve = "single", 
+                                                         padding = 0.2)) +
+  labs(x = "Smoking Group", y = "Mean Blood Glucose (mg/dL)", 
+       caption = 
+         "Figure 1A: Mean Blood Glucose Levels By Smoking Group and Treatment") +
+  scale_fill_manual(values = c("lightblue", "Blue", "lightgreen", "green"), 
+                    labels = c("Placebo - Start", "Placebo - End", 
+                               "Treatment - Start", "Treatment - End")) +
+  theme_bw() + 
+  theme(legend.position = "right", plot.caption = element_text(hjust = 0.5, 
+                                                      size = 10, face = "bold"))
+```
+
+
+### Two-way Anova Analysis 
+```{r}
+# Comparing the means between factors(treatment group and smoking levels)
+# 2-way Anova analysis 
+
+# H0: Nicotine treatment has no impact on mean blood glucose levels 
+# HA: Nicotine Treatment does have an impact on mean blood glucose levels for the different smoking levels
+
+# H0: Smoking levels have no effect on mean blood glucose levels
+# HA: Smoking levels does have an effect on the mean blood glucose levels for 
+# at least one treatment group 
+
+# H0: Mean blood glucose levels does not vary depending on nicotine treatment 
+# and nicotine treatment's effect on mean blood glucose levels does not vary 
+# with different smoking levels 
+# HA: Mean blood glucose levels is effected depending on nicotine treatment or 
+# the nicotine treatment effect varies depending on smoking levels 
+
+# store results of the two way anova 
+two_way_anova <- aov(Blood_Glu_final ~ Treatment_Group * Smoke_Group, 
+                     data = data2)
+
+
+# actual and adjusted2-way anova results
+cat("Figure 1B: Two-Way ANOVA Analysis\n")
+summary(two_way_anova)
+
+cat("Figure 1C: TukeyHSD Adjustment for Two-Way Analysis\n")
+TukeyHSD(two_way_anova)
+```
+
+### 2-way Anova Analysis Assumptions
+```{r}
+# Checking Assumptions for 2-way anova analysis
+#checking assumptions 
+qqnorm(two_way_anova$residuals)
+qqline(two_way_anova$residuals)
+
+# Add caption-like text below the plot
+par(mar = c(6, 4, 4, 2) + 0.1)  # Adjust bottom margin to make space for caption
+mtext("Figure 1E: QQ-Plot for Blood Glucose ANOVA", side = 1, line = 5, 
+      cex = 0.8, font = 2, adj = 0.5)
+
+  
+cat("Table 4: Standard Deviations of Blood Glucose Levels with Smoke and 
+    Treatment Groups")
+tapply(data2$Blood_Glu_final, list(data2$Treatment_Group, data2$Smoke_Group), 
+       "sd")
+
+
+stripchart(two_way_anova$residuals~data2$Treatment_Group*
+             data2$Smoke_Group, vertical=TRUE, pch=1, 
+           xlab = "Treatment and Smoking Groups(0=Placebo, 1=Nicotine)")
+
+# add caption for strip plot 
+par(mar = c(6, 4, 4, 2) + 0.1)  # Adjust bottom margin to make space for caption
+mtext("Figure 1D: Strip Plot To Test Standard Variance of 
+      Blood Glucose ANOVA", side = 1, line = 5, cex = 0.8, font = 2, adj = 0.5)
+
+```
+
+
+
+Using the "ggplot2" library from the "tidyverse" package, we generated a table of blood glucose means for each smoking group status and their treatments (Table 3), then displayed the means in a side-by-side bar chart (Fig.1a) to examine the progression of blood glucose levels throughout the study. As expected, the mean blood glucose levels were observed to be the lowest initially within both the non-smoking (“non”) groups and placebo (group “0”) groups, with a mean blood glucose level of 90.05263 mg/dL. The highest mean blood glucose levels (98.60 mg/dL) was observed among the most frequent smokers (“moderate”) who were also part of the nicotine treatment group. This is consistent with existing literature, where smokers with higher nicotine intakes report higher blood glucose levels (Duncan et al., 2019). However, based on the means plot and the data in Table 3, there appears to be a slight average increase in blood glucose levels across all groups, irrespective of smoking status. This does not fully support the findings of our literature review. For instance, Tjahajawat et al.’s study (2019) saw that blood glucose levels were significantly higher (p = 0.043) in the smoking group than in non-smokers. Their results revealed that the final mean blood glucose of light smokers (90.5 mg/dL for placebo and 95.75 mg/dL for treatment) was less than the non-smoking groups (94.26316 for placebo and 96.40 mg/dL for treatment).
+
+We had originally hypothesized that nicotine intake and smoking would lead to increased blood glucose levels. To measure the impacts on our quantitative variable, mean blood glucose levels (mg/dL), we determined that a two-way ANOVA would be the most appropriate inference procedure (Fig.1b). From the ANOVA analysis, the null hypothesis (H0) states that nicotine treatment and smoking levels have no impact on final mean blood glucose levels. Additionally, the mean blood glucose levels do not vary depending on nicotine treatment and the effect of the nicotine treatment on mean blood glucose levels does not vary with different smoking levels. On the other hand, the alternative hypothesis (HA) states that the nicotine treatment does have an impact on mean blood glucose levels for the different smoking levels, that smoking levels do have an effect on the mean blood glucose levels for at least one treatment group, and that mean blood glucose levels are affected depending on nicotine treatment or the nicotine treatment effect varies depending on smoking levels.
+
+The calculated p-values from the two-way ANOVA (Fig1.b) and the adjustments made using Tukey’s HSD (Fig.1c) did not appear to be significant (all p-values > 0.05), and therefore we cannot reject the null hypothesis. This suggests that smoking status and nicotine intake do not significantly affect blood glucose levels. Consequently, there is a chance a type 2 error was made, where the results incorrectly fail to reject the null hypothesis due to the limitations of the study’s data (e.g., very small sample sizes for certain groups, such as the number of moderate smokers receiving the treatment). The lack of significant results may also be due to low statistical power. Despite this study's attempt to increase power by focusing on a narrower range of ages (40-80 years old), there could be more variance within the age groups that was not accounted for. 
+
+The assumptions of the two-way ANOVA were assessed using a strip plot (Fig.1d), a table summary of standard deviations (Table 4), and a QQ residuals plot (Fig.1e) to check for normality. The QQ plot suggests a near-normal distribution of residuals with most points located on the line, although there is a trailing tail. Independence of observations is also confirmed, as the number of participants in each group is different and the results of one group do not impact the others. It is important to note that simple random sampling (SRS) was not performed, as sampling was done through a multistage process.
+
+
+Furthermore, Figures 1d and Table 4 display different standard deviations between the groups, where the largest calculated SD (8.058122) was more than twice the amount of the lowest SD (3.209361). This variation in standard deviations indicates that the assumption of equal variances may not be fully met. In conclusion, despite the two-way ANOVA being theoretically the most appropriate choice to measure the impacts on a quantitative variable based on two factors, many of the assumptions do not appear to be fully satisfied. Therefore, additional analyses or alternative statistical methods may be necessary to account for these limitations.
+
+
+
+## Blood Glucose Levels and Depressive Symptoms
+ 
+```{r}
+# comparing two qualitative variables, use a scatterplot
+par(mar = c(7, 4, 4, 2) + 0.1)  # Adjust bottom margin to make space for caption
+plot(data2$Blood_Glu_final, data2$Depression_final, xlab = 
+       "Blood Glucose Levels (mg/dl)", ylab= "Depression Score Result")
+
+# add caption for scatterplot
+mtext("Figure 2. Scatter Plot of Blood Glucose Levels and Depression Scores", 
+      side = 1, line = 6, cex = 0.8, font = 2, adj = 0.5)
+
+# adding a line of best fit to view correlation
+regression <- lm(data2$Depression_final ~ data2$Blood_Glu_final)
+abline(regression, col="red", lwd=2)
+
+# extract coefficients from the regression model
+intercept <- coef(regression)[1]
+slope <- coef(regression)[2]
+
+# display the equation of the line of best fit
+cat("Equation of the line of best fit: y =", round(intercept, 2), "+", round(slope, 2), "x\n")
+
+```
+In previous studies, higher blood glucose levels were associated with increased depressive symptoms (Prigge et al., 2022). Thus, we hypothesized a similar association would be seen within The Islands. To investigate the potential association between blood glucose levels and depression scores, both of which are continuous quantitative variables, a scatterplot was generated (Fig.2). The scatterplot and the calculated line of best fit reveal a very weak positive association between blood glucose levels and depressive symptoms, as indicated by a slope of 0.05 for the regression line. Therefore, this weak relationship, along with further discussion of possible confounding factors and experimental errors, does not provide strong support for our hypothesis.
+
+# Conclusions
+To investigate the relationship between blood glucose levels and smoking status, study participants were given a nicotine treatment or a placebo. Based on the blood glucose measurements after 2 weeks, we conducted a two-way ANOVA to compare the means across the different groups, which produced insignificant results. Therefore, we were unable to reject the null, indicating that there is no significant difference in how much you smoke and the intake of nicotine on blood glucose levels (Fig.1c). When examining the relationship between depression levels and smoking status, the very weak positive correlation from the scatterplot in (Fig.2), does not seem to support our hypothesis.
+
+
+# Discussion
+The results of our study revealed increased mean blood glucose levels across all smoking groups and treatments. Also, non-smokers within this study were particularly found to have higher mean blood glucose levels than more frequent smokers. This is not completely consistent with existing literature, which found the blood glucose levels of frequent smokers to be higher (Mamoshina et al., 2018). When assessing the interactions between smoking levels, treatment groups, and their effects on mean blood glucose levels, our two-way ANOVA analysis did not reveal any significant results between the different groups (Fig.1b). Once again, this finding differs from the literature, where the effects of nicotine and smoking had an impact on mean blood glucose levels (Duncan et al., 2019). Furthermore, while there was a very weak positive trend between blood glucose levels and increased symptoms of depression, the near-zero magnitude of the slope suggests a lack of correlation (Fig.2).
+
+
+A major limitation of our study was the unequal distribution of smoking status among participants, and therefore an unequal representation of each status in each randomized treatment group. While individuals were randomly selected within Talu, this study was unable to recruit a substantial number of participants who are frequent smokers and therefore is not a representation of the true village population. The lack of significant differences between the treatment groups could also be due to the low dose (5 mg/day) of nicotine administered to the participants. Due to the varying smoking statuses among the participants, this equivalence of one cigarette may be perceived as relatively low or relatively high. For participants from the “moderate” or “heavy” groups, an additional 5 mg of nicotine per day may have had less impact than on the “lights” or “non” groups. As seen in Table 1, only 6 individuals were present in the “moderate” smoking group, with only one receiving the treatment (Table 2). ​​Therefore, the large increase in the “mean'' blood glucose level of the moderate smoking group (90 to 98 mg/dL) is an observation based on one individual. It is also important to account for various confounding factors of this study including diet, socioeconomic history, and personal fitness; all of which have been shown to impact blood glucose levels or depressive symptoms (Duncan et al., 2019). Additionally, we would like to acknowledge the ethical limitations of this study. Since nicotine is a very addictive substance, it would normally be unethical to administer it to individuals outside of The Islands, especially for individuals who do not have a smoking history. However, we believed this to be a novel method that warranted research. A future study could consider a greater dosage of nicotine tablets within a simulation, or conducting an observational study, to obtain more significant/ethical results. 
+
+As previously mentioned, this study’s assumptions for the ANOVA tests on blood glucose levels and depression scores were determined to be non-significant and did not meet multiple assumptions for ANOVA. This could imply an incorrect failure to reject the null hypothesis in the form of a type 2 error. To avoid such an issue, future research investigating the interactions between smoking and nicotine treatment could use the Kruskal-Wallis test instead: a non-parametric test that does not assume equal variances, SRS, or normality (Guo et al., 2013). 
+
+
+Overall, the weak positive correlation between blood glucose levels and depression scores warrants further investigation. As previously emphasized, potential confounding factors and experimental errors should be explored further and accounted for to better understand the underlying associations and their implications. Future research with larger sample sizes or novel study designs may be necessary to better understand the relationship between smoking levels, nicotine treatment, and blood glucose levels. This would allow us to draw stronger conclusions with greater accuracy. 
+
+
+
+# Works Cited
+Refer to "References.pdf"
+
+# Appendix 
+
+## Depression Survey:
+On a scale from 1 to 10, how angry do you feel right now?
+On a scale from 1 to 10, how anxious do you feel right now?
+On a scale from 1 to 10, how confused do you feel right now?
+On a scale from 1 to 10, how depressed do you feel right now?
+On a scale from 1 to 10, how tired do you feel right now?
+
+
+## “Data Tracking - Final_sheet.csv”- Explanation
+The data collected over our 2-week study period is contained within the dataset. The different types of data are represented in the columns, such as the participants’ current smoking statuses in the "smoke_group" column. Under the "Treatment_Group" column, “0” represents the sugar tablet placebo group while 1 represents the nicotine treatment group. Blood glucose levels and depressive totals were measured at two stages: before treatment ("Blood_Glu_Start(mg/dL)", "Depression_Start", and "Smoke_Freq_Start"), and at the end of the study (“Blood_Glu_final(mg/dL)”, and “Depression_final”). 
+
+
+
+
+
+
+
+
